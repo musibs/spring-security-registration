@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.baeldung.enums.Privileges;
+import com.baeldung.enums.Roles;
 import com.baeldung.persistence.dao.PrivilegeRepository;
 import com.baeldung.persistence.dao.RoleRepository;
 import com.baeldung.persistence.dao.UserRepository;
@@ -48,15 +50,22 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         final Privilege readPrivilege = createPrivilegeIfNotFound("READ_PRIVILEGE");
         final Privilege writePrivilege = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
         final Privilege passwordPrivilege = createPrivilegeIfNotFound("CHANGE_PASSWORD_PRIVILEGE");
+        
+        final Privilege managerPrivilege = createPrivilegeIfNotFound(Privileges.MANAGER_PRIVILEGE.name());
 
         // == create initial roles
         final List<Privilege> adminPrivileges = new ArrayList<>(Arrays.asList(readPrivilege, writePrivilege, passwordPrivilege));
         final List<Privilege> userPrivileges = new ArrayList<>(Arrays.asList(readPrivilege, passwordPrivilege));
         final Role adminRole = createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
         createRoleIfNotFound("ROLE_USER", userPrivileges);
+        
+        final List<Privilege> managerPrivileges = new ArrayList<>(Arrays.asList(readPrivilege, passwordPrivilege, managerPrivilege));
+        final Role managerRole = createRoleIfNotFound(Roles.ROLE_MANAGER.name(), managerPrivileges);
 
         // == create initial user
         createUserIfNotFound("test@test.com", "Test", "Test", "test", new ArrayList<>(Arrays.asList(adminRole)));
+        
+        createUserIfNotFound("manager@test.com", "Manager", "Manager", "manager", new ArrayList<>(Arrays.asList(managerRole)));
 
         alreadySetup = true;
     }

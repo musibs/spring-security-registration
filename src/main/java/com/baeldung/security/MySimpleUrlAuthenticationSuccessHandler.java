@@ -1,5 +1,6 @@
 package com.baeldung.security;
 
+import com.baeldung.enums.Privileges;
 import com.baeldung.persistence.model.User;
 import com.baeldung.service.DeviceService;
 import org.slf4j.Logger;
@@ -82,6 +83,8 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
     protected String determineTargetUrl(final Authentication authentication) {
         boolean isUser = false;
         boolean isAdmin = false;
+        boolean isManager = false;
+        
         final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (final GrantedAuthority grantedAuthority : authorities) {
             if (grantedAuthority.getAuthority().equals("READ_PRIVILEGE")) {
@@ -90,6 +93,9 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
                 isAdmin = true;
                 isUser = false;
                 break;
+            } else if (grantedAuthority.getAuthority().equals(Privileges.MANAGER_PRIVILEGE.name())) {
+            	isManager = true;
+            	break;
             }
         }
         if (isUser) {
@@ -104,7 +110,10 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
             return "/homepage.html?user="+username;
         } else if (isAdmin) {
             return "/console";
-        } else {
+        } else if(isManager) {
+        	return "/management";
+        } 
+        else {
             throw new IllegalStateException();
         }
     }
